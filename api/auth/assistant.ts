@@ -1,9 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import OpenAI from 'openai';
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || '',
-});
+import { GoogleGenAI } from '@google/genai';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS Headers
@@ -17,13 +13,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(500).json({
-        message: 'OPENAI_API_KEY is missing in Vercel environment variables.',
+    const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+    
+    if (!apiKey) {
+      return res.status(500).json({ 
+        error: 'API key is missing in Vercel Environment Variables.' 
       });
     }
 
@@ -32,27 +30,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       try {
         body = JSON.parse(body);
       } catch (e) {
-        return res.status(400).json({ message: 'Invalid JSON request payload.' });
+        return res.status(400).json({ error: 'Invalid JSON request payload.' });
       }
     }
 
     const userMessage = body?.message || body?.prompt || 'Hello';
+    const weatherContext = body?.weatherData ? JSON.stringify(body.weatherData) : '';
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: 'You are Atmosphere AI weather assistant.' },
-        { role: 'user', content: userMessage },
-      ],
+    const ai = new GoogleGenAI({ apiKey });
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: `You are Atmosphere AI, a weather assistant. Context: ${weatherContext}. User message: ${userMessage}`,
     });
 
-    const reply = completion.choices[0]?.message?.content || 'No response generated.';
+    const reply = response.text || 'No telemetry analysis could be generated.';
 
     return res.status(200).json({ reply });
   } catch (error: any) {
-    console.error('AI Function Error:', error);
-    return res.status(500).json({
-      message: error.message || 'Failed to generate AI response.',
+    console.error('Gemini API Error:', error);
+    return res.status(500).json({ 
+      error: error.message || 'Failed to generate telemetry response.' 
     });
   }
 }
