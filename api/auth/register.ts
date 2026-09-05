@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 // User Schema & Model Definition
 const userSchema = new mongoose.Schema({
@@ -37,20 +38,43 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     await connectDB();
 
-    const { fullName, email, password } = req.body;
+    // Safely parse body if sent as a raw string
+    let body = req.body;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        return res.status(400).json({ message: 'Invalid JSON request payload.' });
+      }
+    }
+
+    // Support flexible naming conventions from the frontend
+    const fullName = body?.fullName || body?.name || body?.username;
+    const email = body?.email;
+    const password = body?.password;
 
     if (!email || !password || !fullName) {
-      return res.status(400).json({ message: 'All fields are required.' });
+      return res.status(400).json({ 
+        message: 'All fields are required.',
+        received: { fullName: !!fullName, email: !!email, password: !!password }
+      });
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists with this email.' });
     }
 
+    // Hash password for security
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // Create and save user
-    const newUser = new User({ fullName, email, password });
+    const newUser = new User({ 
+      fullName, 
+      email: email.toLowerCase(), 
+      password: hashedPassword 
+    });
     await newUser.save();
 
     return res.status(201).json({ message: 'Account created successfully!' });
