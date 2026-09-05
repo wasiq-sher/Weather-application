@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
+  <defs>
+    <linearGradient id="cloudGrad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8" />
+      <stop offset="1" stop-color="#0284C7" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="10" y1="5" x2="30" y2="35" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2DD4BF" stop-opacity="0.8" />
+      <stop offset="1" stop-color="#3B82F6" stop-opacity="0.2" />
+    </linearGradient>
+  </defs>
+  <rect width="40" height="40" rx="10" fill="#0B132B" stroke="#1E293B" stroke-width="1.5"/>
+  <circle cx="20" cy="20" r="14" fill="url(#glowGrad)" filter="blur(4px)" />
+  <path d="M14 26C12.3431 26 11 24.6569 11 23C11 21.5235 12.0658 20.2961 13.4862 20.0528C13.8273 17.7554 15.808 16 18.2 16C19.8248 16 21.2588 16.8159 22.1154 18.0645C22.6841 17.7126 23.3644 17.5 24.1 17.5C26.2539 17.5 28 19.2461 28 21.4C28 21.5834 27.9873 21.7638 27.9627 21.9405C28.5833 22.3812 29 23.0955 29 23.9C29 25.0598 28.0598 26 26.9 26H14Z" fill="url(#cloudGrad)"/>
+  <circle cx="25" cy="14" r="2.5" fill="#FBBF24" />
+</svg>

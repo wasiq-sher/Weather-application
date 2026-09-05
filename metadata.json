@@ -1,0 +1,7 @@
+{
+  "name": "Atmosphere AI",
+  "description": "Production-ready full-stack weather application structure featuring React, Vite, Express, MongoDB configuration, CORS, and API error handling.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
